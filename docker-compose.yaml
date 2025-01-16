@@ -1,0 +1,52 @@
+services:
+  app:
+    image: ghcr.io/nathanvaughn/webtrees:latest
+    container_name: webtrees
+    depends_on:
+      - db
+    environment:
+      PRETTY_URLS: TRUE
+      BASE_URL: ${BASE_URL}
+      LANG: de
+      DB_TYPE: mysql
+      DB_HOST: gendb
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PREFIX: ${DB_PREFIX}
+      WT_USER: ${WT_USER}
+      WT_NAME: ${WT_NAME}
+      WT_PASS: ${WT_PASS}
+      WT_EMAIL: ${WT_EMAIL}
+    ports:
+      - 26080:80
+    networks:
+      - gen_net
+    restart: unless-stopped
+    volumes:
+      - data_gen:/var/www/webtrees/data/
+
+  db:
+    image: mariadb:latest
+    container_name: gendb
+    restart: unless-stopped
+    volumes:
+      - mysql_gen:/var/lib/mysql:Z
+    environment:
+      MARIADB_DATABASE: webtrees
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    ports:
+      - 43306:3306
+    networks:
+      - gen_net
+
+networks:
+  gen_net:
+    driver: bridge
+
+volumes:
+  data_gen:
+  mysql_gen:
